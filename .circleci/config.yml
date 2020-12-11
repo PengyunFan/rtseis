@@ -1,46 +1,13 @@
-version: 2
-jobs:
-  build:
-    docker:
-      # In advanced project settings one can set private variables such as the docker username and password
-      #- image: bakerb845/mkl-iscl-build
-      #  auth:
-      #     username: $DOCKER_USER
-      #     password: $DOCKER_PASS
-      - image: bakerb845/ubuntu-rtseis
-    steps:
-      - checkout
-      - run:
-          name: Print the Current Time
-          command: date
-      - run:
-          name: Configure the code
-          command: |
-            export CC=gcc-7
-            export CXX=g++-7
-            export IPP_ROOT=/opt/intel/ipp
-            export MKL_ROOT=/opt/intel/mkl
-            export GTEST_ROOT=/usr/local
-            export BUILD_DIR=build
-            if [ -d ${BUILD_DIR} ]; then
-               echo "Removing build directory" ${BUILD_DIR}
-               rm -rf ${BUILD_DIR}
-            fi
-            mkdir ${BUILD_DIR}
-            cd ${BUILD_DIR}
-            cmake .. \
-            -DCMAKE_CXX_COMPILER=g++-7 \
-            -DCMAKE_C_FLAGS="-Wall" \
-            -DCMAKE_CXX_FLAGS="-Wall" \
-            -DRTSEIS_WRAP_PYTHON=TRUE \
-            -Dpybind11_INCLUDE_DIR="/usr/local/include/pybind11"
-      - run:
-           name: Build the code
-           command: |
-            cd build 
-            make
-      - run:
-           name: Test the code
-           command: |
-            cd build
-            ctest --verbose
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+# Use a package of configuration called an orb.
+orbs:
+  # Declare a dependency on the welcome-orb
+  welcome: circleci/welcome-orb@0.4.1
+# Orchestrate or schedule a set of jobs
+workflows:
+  # Name the workflow "welcome"
+  welcome:
+    # Run the welcome/run job in its own container
+    jobs:
+      - welcome/run
